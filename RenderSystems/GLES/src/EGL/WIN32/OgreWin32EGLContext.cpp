@@ -46,7 +46,7 @@ namespace Ogre {
     {
     }
 
-    GLESContext* Win32EGLContext::clone() const
+    GLContext* Win32EGLContext::clone() const
     {
         return new Win32EGLContext(mEglDisplay ,mGLSupport, mConfig, mDrawable);
     }

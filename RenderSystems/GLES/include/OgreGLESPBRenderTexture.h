@@ -38,7 +38,7 @@ namespace Ogre {
     */
     class GLESPBRTTManager;
     class GLESPBuffer;
-    class GLESContext;
+    class GLContext;
     class _OgreGLESExport GLESPBRenderTexture: public GLESRenderTexture
     {
         public:
@@ -91,7 +91,7 @@ namespace Ogre {
             /** Primary window reference */
             RenderTarget *mMainWindow;
             /** Primary window context */
-            GLESContext *mMainContext;
+            GLContext *mMainContext;
             /** Reference to a PBuffer, with refcount */
             struct PBRef
             {

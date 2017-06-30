@@ -41,7 +41,7 @@ namespace Ogre {
             X11EGLContext(EGLDisplay eglDisplay, const EGLSupport* glsupport, ::EGLConfig fbconfig, ::EGLSurface drawable);
             virtual ~X11EGLContext();
 
-            GLESContext* clone() const;
+            GLContext* clone() const;
     };
 }
 

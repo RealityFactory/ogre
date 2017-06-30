@@ -40,7 +40,7 @@ namespace Ogre {
             Win32EGLContext(EGLDisplay eglDisplay, const EGLSupport* glsupport, ::EGLConfig fbconfig, ::EGLSurface drawable);
 
             virtual ~Win32EGLContext();
-            GLESContext* clone() const;
+            GLContext* clone() const;
     };
 }
 

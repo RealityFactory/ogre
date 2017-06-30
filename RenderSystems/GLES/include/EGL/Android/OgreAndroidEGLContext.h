@@ -39,7 +39,7 @@ namespace Ogre {
         AndroidEGLContext(EGLDisplay eglDisplay, const EGLSupport* glsupport, ::EGLConfig fbconfig, ::EGLSurface drawable);
         
         virtual ~AndroidEGLContext();
-        GLESContext* clone() const;
+        GLContext* clone() const;
     };
 }
 

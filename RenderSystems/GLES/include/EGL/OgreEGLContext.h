@@ -30,12 +30,12 @@ THE SOFTWARE.
 #ifndef __EGLContext_H__
 #define __EGLContext_H__
 
-#include "OgreGLESContext.h"
+#include "OgreGLContext.h"
 
 namespace Ogre {
     class EGLSupport;
 
-    class _OgrePrivate EGLContext: public GLESContext
+    class _OgrePrivate EGLContext: public GLContext
     {
         protected:
             ::EGLConfig    mConfig;

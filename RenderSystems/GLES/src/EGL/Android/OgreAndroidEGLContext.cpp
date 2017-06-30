@@ -41,7 +41,7 @@ namespace Ogre {
     {
     }
     
-    GLESContext* AndroidEGLContext::clone() const
+    GLContext* AndroidEGLContext::clone() const
     {
         return new AndroidEGLContext(mEglDisplay, mGLSupport, mConfig, mDrawable);
     }

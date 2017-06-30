@@ -34,7 +34,7 @@ THE SOFTWARE.
 #include "OgreRenderSystem.h"
 
 namespace Ogre {
-    class GLESContext;
+    class GLContext;
     class GLESSupport;
     class GLESRTTManager;
     class GLESGpuProgramManager;
@@ -93,10 +93,10 @@ namespace Ogre {
             GLESStateCacheManager* mStateCacheManager;
         
             /* The main GL context - main thread only */
-            GLESContext *mMainContext;
+            GLContext *mMainContext;
 
             /* The current GL context  - main thread only */
-            GLESContext *mCurrentContext;
+            GLContext *mCurrentContext;
             GLESGpuProgramManager *mGpuProgramManager;
             HardwareBufferManager* mHardwareBufferManager;
 
@@ -451,18 +451,18 @@ namespace Ogre {
             // GLESRenderSystem specific members
             // ----------------------------------
             /** Returns the main context */
-            GLESContext* _getMainContext() { return mMainContext; }
+            GLContext* _getMainContext() { return mMainContext; }
             /** Unregister a render target->context mapping. If the context of target 
              is the current context, change the context to the main context so it
              can be destroyed safely. 
              
              @note This is automatically called by the destructor of 
-             GLESContext.
+             GLContext.
              */
-            void _unregisterContext(GLESContext *context);
+            void _unregisterContext(GLContext *context);
             /** Switch GL context, dealing with involved internal cached states too
              */
-            void _switchContext(GLESContext *context);
+            void _switchContext(GLContext *context);
             /** One time initialization for the RenderState of a context. Things that
              only need to be set once, like the LightingModel can be defined here.
              */

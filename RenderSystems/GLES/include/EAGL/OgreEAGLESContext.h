@@ -29,7 +29,7 @@ THE SOFTWARE.
 #ifndef __EAGLESContext_H__
 #define __EAGLESContext_H__
 
-#include "OgreGLESContext.h"
+#include "OgreGLContext.h"
 
 #ifdef __OBJC__
 #   import <QuartzCore/CAEAGLLayer.h>
@@ -37,7 +37,7 @@ THE SOFTWARE.
 
 namespace Ogre {
 
-    class _OgrePrivate EAGLESContext : public GLESContext
+    class _OgrePrivate EAGLESContext : public GLContext
     {
         protected:
 #ifdef __OBJC__

@@ -49,7 +49,7 @@ namespace Ogre
     class GLESDepthBuffer : public DepthBuffer
     {
     public:
-        GLESDepthBuffer( uint16 poolId, GLESRenderSystem *renderSystem, GLESContext *creatorContext,
+        GLESDepthBuffer( uint16 poolId, GLESRenderSystem *renderSystem, GLContext *creatorContext,
                         GLESRenderBuffer *depth, GLESRenderBuffer *stencil,
                         uint32 width, uint32 height, uint32 fsaa, uint32 multiSampleQuality,
                         bool isManual );
@@ -58,13 +58,13 @@ namespace Ogre
         /// @copydoc DepthBuffer::isCompatible
         virtual bool isCompatible( RenderTarget *renderTarget ) const;
 
-        GLESContext* getGLContext() const { return mCreatorContext; }
+        GLContext* getGLContext() const { return mCreatorContext; }
         GLESRenderBuffer* getDepthBuffer() const  { return mDepthBuffer; }
         GLESRenderBuffer* getStencilBuffer() const { return mStencilBuffer; }
 
     protected:
         uint32                      mMultiSampleQuality;
-        GLESContext                 *mCreatorContext;
+        GLContext                   *mCreatorContext;
         GLESRenderBuffer            *mDepthBuffer;
         GLESRenderBuffer            *mStencilBuffer;
         GLESRenderSystem            *mRenderSystem;
