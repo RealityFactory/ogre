@@ -34,11 +34,6 @@ THE SOFTWARE.
 #include "OgreLogManager.h"
 #include "OgreMath.h"
 
-namespace Ogre {
-    class GLContext;
-    typedef GLContext GLESContext;
-}
-
 #if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32)
 #   if !defined( __MINGW32__ )
 #       ifndef WIN32_LEAN_AND_MEAN

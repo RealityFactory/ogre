@@ -47,7 +47,7 @@ namespace Ogre {
     {
     }
 
-    GLContext* X11EGLContext::clone() const
+    GLESContext* X11EGLContext::clone() const
     {
         return new X11EGLContext(mEglDisplay, mGLSupport, mConfig, mDrawable);
     }

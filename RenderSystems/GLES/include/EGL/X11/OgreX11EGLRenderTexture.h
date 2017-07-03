@@ -36,7 +36,7 @@ THE SOFTWARE.
 
 namespace Ogre
 {
-    class GLContext;
+    class GLESContext;
     class EGLSupport;
     class EGLContext;
 

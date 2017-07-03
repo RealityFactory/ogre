@@ -226,7 +226,7 @@ namespace Ogre {
         // Do nothing
     }
 
-    GLContext * EAGLESContext::clone() const
+    GLESContext * EAGLESContext::clone() const
     {
         return const_cast<EAGLESContext *>(this);
     }

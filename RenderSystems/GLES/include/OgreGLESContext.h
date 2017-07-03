@@ -27,21 +27,46 @@ THE SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __X11EGLContext_H__
-#define __X11EGLContext_H__
+#ifndef __OgreGLESContext_H__
+#define __OgreGLESContext_H__
 
-#include "OgreEGLContext.h"
+#include "OgreGLESPrerequisites.h"
 
 namespace Ogre {
-    class EGLSupport;
-
-    class _OgrePrivate X11EGLContext: public EGLContext
+    /**
+     * Class that encapsulates an GL context. (IE a window/pbuffer). This is a 
+     * virtual base class which should be implemented in a GLSupport.
+     * This object can also be used to cache renderstate if we decide to do so
+     * in the future.
+     */
+    class _OgreGLESExport GLESContext
     {
         public:
-            X11EGLContext(EGLDisplay eglDisplay, const EGLSupport* glsupport, ::EGLConfig fbconfig, ::EGLSurface drawable);
-            virtual ~X11EGLContext();
+            GLESContext();
+            virtual ~GLESContext();
 
-            GLESContext* clone() const;
+            /**
+             * Enable the context. All subsequent rendering commands will go here.
+             */
+            virtual void setCurrent() = 0;
+
+            /**
+             * This is called before another context is made current. By default,
+             * nothing is done here.
+             */
+            virtual void endCurrent() = 0;
+
+            bool getInitialized() { return initialized; };
+            void setInitialized() { initialized = true; };
+
+            /** Create a new context based on the same window/pbuffer as this
+                context - mostly useful for additional threads.
+            @note The caller is responsible for deleting the returned context.
+            */
+            virtual GLESContext* clone() const = 0;
+
+        protected:
+            bool initialized;
     };
 }
 

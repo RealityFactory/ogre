@@ -653,7 +653,7 @@ namespace Ogre {
 
     void GLESRenderSystem::_destroyDepthBuffer(RenderWindow* pWin)
     {
-        GLContext *windowContext = 0;
+        GLESContext *windowContext = 0;
         pWin->getCustomAttribute("GLCONTEXT", &windowContext);
         
         //1 Window <-> 1 Context, should be always true
@@ -674,7 +674,7 @@ namespace Ogre {
                 // A DepthBuffer with no depth & stencil pointers is a dummy one,
                 // look for the one that matches the same GL context
                 GLESDepthBuffer *depthBuffer = static_cast<GLESDepthBuffer*>(*itor);
-                GLContext *glContext = depthBuffer->getGLContext();
+                GLESContext *glContext = depthBuffer->getGLContext();
                 
                 if( glContext == windowContext &&
                    (depthBuffer->getDepthBuffer() || depthBuffer->getStencilBuffer()) )
@@ -2627,7 +2627,7 @@ namespace Ogre {
         GL_CHECK_ERROR;
     }
 
-    void GLESRenderSystem::_switchContext(GLContext *context)
+    void GLESRenderSystem::_switchContext(GLESContext *context)
     {
         // Disable lights
         for (unsigned short i = 0; i < mCurrentLights; ++i)
@@ -2662,7 +2662,7 @@ namespace Ogre {
         glStencilMask(mStateCacheManager->getStencilMask());
     }
 
-    void GLESRenderSystem::_unregisterContext(GLContext *context)
+    void GLESRenderSystem::_unregisterContext(GLESContext *context)
     {
         if (mCurrentContext == context)
         {
@@ -2730,7 +2730,7 @@ namespace Ogre {
         if (target)
         {
             // Switch context if different from current one
-            GLContext *newContext = 0;
+            GLESContext *newContext = 0;
             target->getCustomAttribute("GLCONTEXT", &newContext);
             if (newContext && mCurrentContext != newContext)
             {

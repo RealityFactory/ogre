@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include "OgreGLESPBRenderTexture.h"
 #include "OgreGLESPBuffer.h"
-#include "OgreGLContext.h"
+#include "OgreGLESContext.h"
 #include "OgreGLESPixelFormat.h"
 #include "OgreGLESHardwarePixelBuffer.h"
 #include "OgreLogManager.h"

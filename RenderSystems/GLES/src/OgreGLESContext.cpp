@@ -27,22 +27,16 @@ THE SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __X11EGLContext_H__
-#define __X11EGLContext_H__
-
-#include "OgreEGLContext.h"
+#include "OgreGLESContext.h"
 
 namespace Ogre {
-    class EGLSupport;
-
-    class _OgrePrivate X11EGLContext: public EGLContext
+    // Empty base class
+    GLESContext::GLESContext()
+        : initialized(false)
     {
-        public:
-            X11EGLContext(EGLDisplay eglDisplay, const EGLSupport* glsupport, ::EGLConfig fbconfig, ::EGLSurface drawable);
-            virtual ~X11EGLContext();
+    }
 
-            GLESContext* clone() const;
-    };
+    GLESContext::~GLESContext()
+    {
+    }
 }
-
-#endif

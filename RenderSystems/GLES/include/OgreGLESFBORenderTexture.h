@@ -29,7 +29,7 @@ THE SOFTWARE.
 #define __OgreGLESFBORTT_H__
 
 #include "OgreGLESRenderTexture.h"
-#include "OgreGLContext.h"
+#include "OgreGLESContext.h"
 #include "OgreGLESFrameBufferObject.h"
 #include "OgreGLESManagedResource.h"
 

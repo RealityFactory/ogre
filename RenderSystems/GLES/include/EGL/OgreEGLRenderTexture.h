@@ -36,7 +36,7 @@ THE SOFTWARE.
 #include "OgreEGLSupport.h"
 namespace Ogre
 {
-    class GLContext;
+    class GLESContext;
     class EGLSupport;
     class EGLContext;
 
