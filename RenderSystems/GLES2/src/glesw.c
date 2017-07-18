@@ -124,12 +124,20 @@ static int parse_version(void)
 {
     version.major = 2;
     version.minor = 0;
-
+    
+#if 1 // GLES2 way
+    if(glGetString)
+    {
+        const char* pcVer = (const char*)glGetString(GL_VERSION);
+        sscanf(pcVer, "OpenGL ES %u.%u", &version.major, &version.minor);
+    }
+#else // GLES3 way
 	if(glGetIntegerv)
 	{
 	    glGetIntegerv(GL_MAJOR_VERSION, &version.major);
 	    glGetIntegerv(GL_MINOR_VERSION, &version.minor);
 	}
+#endif
 
 	if(version.major < 2)
 	    return -1;
