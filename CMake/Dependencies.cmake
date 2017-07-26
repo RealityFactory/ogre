@@ -339,8 +339,8 @@ find_package(OpenEXR)
 macro_log_feature(OPENEXR_FOUND "OpenEXR" "Load High dynamic range images" "http://www.openexr.com/" FALSE "" "")
 
 # Python
-find_package(PythonLibs)
 find_package(PythonInterp)
+find_package(PythonLibs)
 macro_log_feature(PYTHONLIBS_FOUND "Python" "Language bindings to use OGRE from Python" "http://www.python.org/" FALSE "" "")
 
 #######################################################################
@@ -349,9 +349,13 @@ macro_log_feature(PYTHONLIBS_FOUND "Python" "Language bindings to use OGRE from 
 
 # Find sdl2
 if(NOT ANDROID)
-# find script does not work in cross compilation environment
-find_package(SDL2)
-macro_log_feature(SDL2_FOUND "SDL2" "Simple DirectMedia Library needed for input handling in samples" "https://www.libsdl.org/" FALSE "" "")
+  # find script does not work in cross compilation environment
+  find_package(SDL2)
+  macro_log_feature(SDL2_FOUND "SDL2" "Simple DirectMedia Library needed for input handling in samples" "https://www.libsdl.org/" FALSE "" "")
+  if(SDL2_FOUND AND WIN32 AND NOT SDL2_BINARY)
+    # fix linking static SDL2 on windows
+    set(SDL2_LIBRARY ${SDL2_LIBRARY} winmm.lib imm32.lib version.lib)
+  endif()
 endif()
 
 #######################################################################
