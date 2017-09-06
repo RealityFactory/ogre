@@ -23,7 +23,7 @@
 @property( syntax == glsl )
 	#define SH_HALF2 vec2
 	#define SH_HALF float
-	#define OGRE_SAMPLE_SHADOW( tex, sampler, uv, depth ) texture( tex, vec3( uv, fDepth ) ).x
+	#define OGRE_SAMPLE_SHADOW( tex, sampler, uv, depth ) texture( tex, vec3( uv, fDepth ) )
 	#define OGRE_SAMPLE_SHADOW_ESM( tex, sampler, uv ) textureLod( tex, uv, 0 ).x
 	#define PASSBUF_ARG_DECL
 	#define PASSBUF_ARG
@@ -187,7 +187,12 @@
 
 		@property( pcf_3x3 || pcf_4x4 )
 			SH_HALF2 offsets[@value(pcf_iterations)] =
-			{
+            @property( syntax == glsl )
+                SH_HALF2[@value(pcf_iterations)](
+            @end
+            @property( syntax != glsl )
+            {
+            @end
 			@property( pcf_3x3 )
 				SH_HALF2( 0, 0 ),	//0, 0
 				SH_HALF2( 1, 0 ),	//1, 0
@@ -207,7 +212,12 @@
 				SH_HALF2( 1, 0 ),	//1, 2
 				SH_HALF2( 1, 0 )	//2, 2
 			@end
+            @property( syntax == glsl )
+            );
+            @end
+            @property( syntax != glsl )
 			};
+            @end
 		@end
 
 		@insertpiece( regularTexturePcfGlSampling )
@@ -316,42 +326,4 @@
 	@end
 @end ///!receive_shadows
 
-@end
-
-///--------------------------------------------------------------------------------------
-/// Caster
-///--------------------------------------------------------------------------------------
-
-@piece( DeclShadowCasterMacros )
-	@property( syntax == glsl )
-		@property( !hlms_render_depth_only )
-			@property( GL3+ )
-				#define outDepth outColour
-			@end
-			@property( !GL3+ )
-				#define outDepth gl_FragColor
-			@end
-		@end
-		@property( hlms_render_depth_only )
-			#define outDepth gl_FragDepth
-		@end
-	@end
-
-	@property( syntax == hlsl || syntax == metal )
-		#define outDepth outPs.colour0
-	@end
-@end
-
-@piece( DoShadowCastPS )
-	@property( (!hlms_shadow_uses_depth_texture || exponential_shadow_maps) && !hlms_shadowcaster_point )
-		outDepth = inPs.depth;
-	@end
-	@property( hlms_shadowcaster_point )
-		float distanceToCamera = length( inPs.toCameraWS );
-		@property( !exponential_shadow_maps )
-			outDepth = (distanceToCamera - passBuf.depthRange.x) * passBuf.depthRange.y + inPs.constBias;
-		@end @property( exponential_shadow_maps )
-			outDepth = (distanceToCamera - passBuf.depthRange.x) * passBuf.depthRange.y;
-		@end
-	@end
 @end

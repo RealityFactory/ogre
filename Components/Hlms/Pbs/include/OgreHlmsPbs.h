@@ -31,12 +31,17 @@ THE SOFTWARE.
 #include "OgreHlmsPbsPrerequisites.h"
 #include "OgreHlmsBufferManager.h"
 #include "OgreConstBufferPool.h"
+#include "OgreMatrix4.h"
 #include "OgreHeaderPrefix.h"
+#include "OgreRoot.h"
 
 namespace Ogre
 {
     class CompositorShadowNode;
     struct QueuedRenderable;
+#ifdef OGRE_BUILD_COMPONENT_PLANAR_REFLECTIONS
+    class PlanarReflections;
+#endif
 
     /** \addtogroup Component
     *  @{
@@ -116,7 +121,7 @@ namespace Ogre
         TexturePtr              mTargetEnvMap;
         ParallaxCorrectedCubemap    *mParallaxCorrectedCubemap;
 
-        uint32                  mCurrentPassBuffer;     /// Resets every to zero every new frame.
+        uint32                  mCurrentPassBuffer;     /// Resets to zero every new frame.
 
         TexBufferPacked         *mGridBuffer;
         TexBufferPacked         *mGlobalLightListBuffer;
@@ -126,7 +131,17 @@ namespace Ogre
         TextureVec const        *mPrePassTextures;
         TexturePtr              mPrePassMsaaDepthTexture;
         TextureVec const        *mSsrTexture;
-        IrradianceVolume       *mIrradianceVolume;
+        IrradianceVolume        *mIrradianceVolume;
+#ifdef OGRE_BUILD_COMPONENT_PLANAR_REFLECTIONS
+        //TODO: After texture refactor it should be possible to abstract this,
+        //so we don't have to be aware of PlanarReflections class.
+        PlanarReflections       *mPlanarReflections;
+        HlmsSamplerblock const  *mPlanarReflectionsSamplerblock;
+        /// Whether the current active pass can use mPlanarReflections (i.e. we can't
+        /// use the reflections if they were built for a different camera angle)
+        bool                    mHasPlanarReflections;
+        uint8                   mLastBoundPlanarReflection;
+#endif
 
         ConstBufferPool::BufferPool const *mLastBoundPool;
 
@@ -194,6 +209,20 @@ namespace Ogre
         virtual void postCommandBufferExecution( CommandBuffer *commandBuffer );
         virtual void frameEnded(void);
 
+        /** Fill the provided string and string vector with all the sub-folder needed to instantiate
+            an HlmsPbs object with the default distribution of the HlmsResources.
+            These paths are dependent of the current RenderSystem.
+
+            This method can only be called after a valid RenderSysttem has been chosen.
+
+            All output parameter's content will be replaced with the new set of paths.
+        @param outDataFolderPath
+            Path (as a String) used for creating the "dataFolder" Archive the constructor will need
+        @param outLibraryFoldersPaths
+            Vector of String used for creating the ArchiveVector "libraryFolders" the constructor will need
+        */
+        static void getDefaultPaths( String& outDataFolderPath, StringVector& outLibraryFoldersPaths );
+
 #if !OGRE_NO_FINE_LIGHT_MASK_GRANULARITY
         /// Toggles whether light masks will be obeyed per object by doing:
         /// if( movableObject->getLightMask() & light->getLightMask() )
@@ -241,6 +270,11 @@ namespace Ogre
                                                     { mIrradianceVolume = irradianceVolume; }
         IrradianceVolume* getIrradianceVolume(void) const  { return mIrradianceVolume; }
 
+#ifdef OGRE_BUILD_COMPONENT_PLANAR_REFLECTIONS
+        void setPlanarReflections( PlanarReflections *planarReflections );
+        PlanarReflections* getPlanarReflections(void) const;
+#endif
+
 #if !OGRE_NO_JSON
         /// @copydoc Hlms::_loadJson
         virtual void _loadJson( const rapidjson::Value &jsonValue, const HlmsJson::NamedBlocks &blocks,
@@ -262,6 +296,7 @@ namespace Ogre
         static const IdString MaterialsPerBuffer;
         static const IdString LowerGpuOverhead;
         static const IdString DebugPssmSplits;
+        static const IdString HasPlanarReflections;
 
         static const IdString NumTextures;
         static const char *DiffuseMap;
@@ -287,6 +322,7 @@ namespace Ogre
         static const IdString MetallicWorkflow;
         static const IdString TwoSidedLighting;
         static const IdString ReceiveShadows;
+        static const IdString UsePlanarReflections;
 
         static const IdString NormalWeight;
         static const IdString NormalWeightTex;
@@ -345,8 +381,11 @@ namespace Ogre
 
         static const IdString BrdfDefault;
         static const IdString BrdfCookTorrance;
+        static const IdString BrdfBlinnPhong;
         static const IdString FresnelSeparateDiffuse;
         static const IdString GgxHeightCorrelated;
+        static const IdString LegacyMathBrdf;
+        static const IdString RoughnessIsShininess;
 
         static const IdString *UvSourcePtrs[NUM_PBSM_SOURCES];
         static const IdString *BlendModes[4];

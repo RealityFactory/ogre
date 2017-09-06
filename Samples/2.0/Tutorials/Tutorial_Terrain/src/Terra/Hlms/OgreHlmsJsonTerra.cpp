@@ -53,12 +53,16 @@ namespace Ogre
             return TerraBrdf::Default;
         if( !strcmp( value, "cook_torrance" ) )
             return TerraBrdf::CookTorrance;
+        if( !strcmp( value, "blinn_phong" ) )
+            return TerraBrdf::BlinnPhong;
         if( !strcmp( value, "default_uncorrelated" ) )
             return TerraBrdf::DefaultUncorrelated;
         if( !strcmp( value, "default_separate_diffuse_fresnel" ) )
             return TerraBrdf::DefaultSeparateDiffuseFresnel;
         if( !strcmp( value, "cook_torrance_separate_diffuse_fresnel" ) )
             return TerraBrdf::CookTorranceSeparateDiffuseFresnel;
+        if( !strcmp( value, "blinn_phong_separate_diffuse_fresnel" ) )
+            return TerraBrdf::BlinnPhongSeparateDiffuseFresnel;
 
         return TerraBrdf::Default;
     }
@@ -85,7 +89,7 @@ namespace Ogre
     //-----------------------------------------------------------------------------------
     void HlmsJsonTerra::loadTexture( const rapidjson::Value &json, const char *keyName,
                                      TerraTextureTypes textureType, HlmsTerraDatablock *datablock,
-                                     PackedTexture textures[NUM_TERRA_TEXTURE_TYPES] )
+                                     TerraPackedTexture textures[NUM_TERRA_TEXTURE_TYPES] )
     {
         assert( textureType != TERRA_REFLECTION );
 
@@ -142,7 +146,7 @@ namespace Ogre
     //-----------------------------------------------------------------------------------
     void HlmsJsonTerra::loadTexture( const rapidjson::Value &json, const HlmsJson::NamedBlocks &blocks,
                                      TerraTextureTypes textureType, HlmsTerraDatablock *datablock,
-                                     PackedTexture textures[] )
+                                     TerraPackedTexture textures[] )
     {
         const HlmsTextureManager::TextureMapType texMapTypes[NUM_TERRA_TEXTURE_TYPES] =
         {
@@ -247,7 +251,7 @@ namespace Ogre
         if (itor != json.MemberEnd() && itor->value.IsString())
             terraDatablock->setBrdf(parseBrdf(itor->value.GetString()));
 
-        PackedTexture packedTextures[NUM_TERRA_TEXTURE_TYPES];
+        TerraPackedTexture packedTextures[NUM_TERRA_TEXTURE_TYPES];
 
         itor = json.FindMember("diffuse");
         if( itor != json.MemberEnd() && itor->value.IsObject() )
