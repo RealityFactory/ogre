@@ -153,6 +153,13 @@ namespace Ogre
 
         void cleanAutoParamsBuffers(void);
 
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+        TexturePtr mDummyMarkerTexture;
+        
+        void _setUavViewForSlot(uint32 slot, TexturePtr texture, int32 mipLevel,
+                                int32 textureArrayIndex);
+#endif
+        
     public:
         MetalRenderSystem();
         virtual ~MetalRenderSystem();

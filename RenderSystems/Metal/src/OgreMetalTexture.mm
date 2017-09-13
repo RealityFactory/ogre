@@ -359,7 +359,7 @@ namespace Ogre
 
         if( mUsage & TU_RENDERTARGET )
         {
-        #if OGRE_DEBUG_MODE
+        #if xOGRE_DEBUG_MODE
             RenderTarget *renderTarget = mSurfaceList[0]->getRenderTarget();
             if( PixelUtil::isDepth( renderTarget->getFormat() ) )
             {
@@ -372,7 +372,7 @@ namespace Ogre
             {
                 assert( dynamic_cast<MetalRenderTexture*>( renderTarget ) );
                 MetalRenderTexture *renderTexture = static_cast<MetalRenderTexture*>( renderTarget );
-                assert( renderTexture->mColourAttachmentDesc.loadAction != MTLLoadActionClear );
+                /// TODO: Temp HACK: assert( renderTexture->mColourAttachmentDesc.loadAction != MTLLoadActionClear );
             }
         #endif
 
@@ -412,4 +412,29 @@ namespace Ogre
 
         return retVal;
     }
+    
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+    // Returns a texture view from the given mipLevel. If texture is already in the cache, just return it.
+    // Otherwise create it and add it to the cache.
+    //
+    id<MTLTexture> MetalTexture::getUavViewFromCache(int32 mipLevel, int32 textureArrayIndex)
+    {
+        UavViewCacheIterator it = mUavViewCache.find(mipLevel);
+        if (it != mUavViewCache.end())
+            return it->second;
+        
+        // Create view
+        MTLPixelFormat pixelFormat = MetalMappings::getPixelFormat( mFormat, mHwGamma );
+        MTLTextureType textureType = this->getMetalTextureTarget();
+        id<MTLTexture> texView = [mTexture newTextureViewWithPixelFormat:pixelFormat
+                                                             textureType:textureType
+                                                                  levels:NSMakeRange(mipLevel, 1)
+                                                                  slices:NSMakeRange(textureArrayIndex, 1)];
+        
+        // Add to cache
+        mUavViewCache[mipLevel] = texView;
+
+        return texView;
+    }
+#endif
 }

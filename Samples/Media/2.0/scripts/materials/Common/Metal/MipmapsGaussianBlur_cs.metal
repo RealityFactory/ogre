@@ -31,12 +31,29 @@
 @piece( image_store )
 	@property( downscale_lq )
 		@foreach( 2, iPixel )
-			outputImage.write( float4( outColour[ @iPixel ], 1.0 ), uint2( i2Center +  @iPixel * i2Inc ),
-							   p.dstLodIdx );@end
-	@end @property( !downscale_lq )
+            @property( iOS )
+                outputImage.write( float4( outColour[ @iPixel ], 1.0 ), uint2( i2Center +  @iPixel * i2Inc ),
+                                   p.dstLodIdx );
+            @end
+            @property( !iOS )
+                // macOS doesn't support variable lod here. So we emulate this with texture views.
+                // See MetalRenderSystem::_bindTextureUavCS
+                outputImage.write( float4( outColour[ @iPixel ], 1.0 ), uint2( i2Center +  @iPixel * i2Inc ),
+                                   0 );
+            @end
+        @end
+	@end
+    @property( !downscale_lq )
 		@foreach( 2, iPixel )
-			outputImage.write( float4( (outColour[ @iPixel * 2 ] + outColour[ @iPixel * 2 + 1 ]) * 0.5, 1.0 ),
-							   uint2( i2Center +  @iPixel * i2Inc ),
-							   p.dstLodIdx );@end
+            @property( iOS )
+                outputImage.write( float4( (outColour[ @iPixel * 2 ] + outColour[ @iPixel * 2 + 1 ]) * 0.5, 1.0 ),
+                                  uint2( i2Center +  @iPixel * i2Inc ), p.dstLodIdx );
+            @end
+            @property( !iOS )
+                // See macOS comment above
+                outputImage.write( float4( (outColour[ @iPixel * 2 ] + outColour[ @iPixel * 2 + 1 ]) * 0.5, 1.0 ),
+                                   uint2( i2Center +  @iPixel * i2Inc ),  0 );
+            @end
+        @end
 	@end
 @end

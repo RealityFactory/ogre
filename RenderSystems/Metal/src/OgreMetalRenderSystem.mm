@@ -94,6 +94,9 @@ namespace Ogre
         memset( mHistoricalAutoParamsSize, 0, sizeof(mHistoricalAutoParamsSize) );
         for( size_t i=0; i<OGRE_MAX_MULTIPLE_RENDER_TARGETS; ++i )
             mCurrentColourRTs[i] = 0;
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+        mDummyMarkerTexture.setNull();
+#endif
     }
     //-------------------------------------------------------------------------
     MetalRenderSystem::~MetalRenderSystem()
@@ -402,9 +405,9 @@ namespace Ogre
         if( !mUavs[slot].buffer && mUavs[slot].texture.isNull() && texture.isNull() )
             return;
 
-        mUavs[slot].texture = texture;
+        mUavs[slot].texture.setNull();
         mUavs[slot].buffer  = 0;
-
+        
         if( !texture.isNull() )
         {
             if( !(texture->getUsage() & TU_UAV) )
@@ -412,16 +415,58 @@ namespace Ogre
                 OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS,
                              "Texture " + texture->getName() +
                              " must have been created with TU_UAV to be bound as UAV",
-                             "GL3PlusRenderSystem::queueBindUAV" );
+                             "MetalRenderSystem::queueBindUAV" );
             }
 
-            mUavs[slot].textureName = static_cast<MetalTexture*>( texture.get() )->
-                    getTextureForSampling( this );
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+            if (mipmapLevel == 0)
+            {
+#endif
+                mUavs[slot].texture = texture;
+                mUavs[slot].textureName = static_cast<MetalTexture*>( texture.get() )->
+                        getTextureForSampling( this );
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+            }
+            else
+            {
+                // Shader texture.write on the macOS platform doesn't allow the lod argument to be a variable;
+                // it must be literal 0. So the mac version of the shader is always hardwired to use lod 0.
+                // Here we emulate variable lod by creating a texture view for each miplevel. Instead of binding
+                // the original texture, we bind the miplevel texture view selected by mipmapLevel.
+                //
+                // Note: we don't need to actually create a full Ogre texture for each Metal view texture;
+                // Instead, we take advantage of the fact that the code throughout the Metal render system
+                // only cares whether the uav slot's texture is null or non-null; it doesn't care about the actual value.
+                // So we can get away with assigning the slot's texture to a single dummy marker Ogre texture for
+                // all mip levels.
+
+                MetalTexture* mtlTex = static_cast<MetalTexture*>(texture.get());
+                id<MTLTexture> mtlTexView = mtlTex->getUavViewFromCache(mipmapLevel, textureArrayIndex);
+                if (!mtlTexView)
+                {
+                    OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND,
+                                "Cannot create UAV texture view for texture " + texture->getName(),
+                                "MetalRenderSystem::queueBindUAV" );
+                }
+                
+                if (!mDummyMarkerTexture)
+                {
+                    mDummyMarkerTexture = TexturePtr(
+                                            new MetalTexture(texture->getCreator(),
+                                            "MetalRenderSystem Dummy Marker Texture",
+                                            0, texture->getGroup(), false, 0, mActiveDevice));
+                }
+                
+                mUavs[slot].texture = mDummyMarkerTexture;
+                mUavs[slot].textureName = mtlTexView;
+            }
+#endif
         }
 
         mMaxModifiedUavPlusOne = std::max( mMaxModifiedUavPlusOne, static_cast<uint8>( slot + 1 ) );
     }
     //-------------------------------------------------------------------------
+
     void MetalRenderSystem::queueBindUAV( uint32 slot, UavBufferPacked *buffer,
                                           ResourceAccess::ResourceAccess access,
                                           size_t offset, size_t sizeBytes )
@@ -501,8 +546,30 @@ namespace Ogre
 
         if( texture )
         {
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+            if (mipmapLevel == 0)
+            {
+#endif
             MetalTexture *metalTex = static_cast<MetalTexture*>( texture );
             metalTexture = metalTex->getTextureForSampling( this );
+                
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+            }
+            else
+            {
+                // See macOS-specific comment in queueBindUAV.
+                MetalTexture* mtlTex = static_cast<MetalTexture*>(texture);
+                id<MTLTexture> mtlTexView = mtlTex->getUavViewFromCache(mipmapLevel, textureArrayIndex);
+                if (!mtlTexView)
+                {
+                    OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND,
+                                "Cannot create UAV texture view for texture " + texture->getName(),
+                                "MetalRenderSystem::_bindTextureUavCS" );
+                }
+                
+                metalTexture = mtlTexView;
+            }
+#endif
         }
 
         [computeEncoder setTexture:metalTexture atIndex:slot + OGRE_METAL_CS_UAV_SLOT_START];

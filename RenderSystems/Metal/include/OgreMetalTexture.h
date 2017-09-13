@@ -38,6 +38,12 @@ Copyright (c) 2000-2016 Torus Knot Software Ltd
 
 #import <Metal/MTLTexture.h>
 
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+#include <map>
+typedef std::map<int32_t, __strong id<MTLTexture>> UavViewCache;
+typedef UavViewCache::const_iterator UavViewCacheIterator;
+#endif
+
 namespace Ogre
 {
     class MetalTexture : public Texture
@@ -59,6 +65,10 @@ namespace Ogre
         /// by loadImpl.  Images should be deleted by loadImpl and unprepareImpl.
         LoadedImages mLoadedImages;
 
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+        UavViewCache mUavViewCache;
+#endif
+        
         MTLTextureType getMetalTextureTarget(void) const;
         void createMetalTexResource(void);
         void createSurfaceList(void);
@@ -84,6 +94,10 @@ namespace Ogre
         id<MTLTexture> getTextureForSampling( MetalRenderSystem *renderSystem );
 
         MetalDevice* getOwnerDevice(void) const             { return mDevice; }
+        
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE_IOS
+        id<MTLTexture> getUavViewFromCache(int32 mipLevel, int32 textureArrayIndex);
+#endif
     };
 }
 
